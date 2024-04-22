@@ -1,0 +1,44 @@
+/* Texte défilant */
+.messagedefilant {
+    display: block;
+    padding: 0;
+    overflow: hidden;
+    position:absolute;
+    width: 130%;
+    height: 10%;
+    z-index: 1;
+    color: rgb(66, 66, 66);
+    font-weight: bold;
+    rotate: -30deg;
+    top: 8%; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    }
+   
+  .messagedefilant div {
+    position: absolute;
+    min-width: 100%; /* au minimum la largeur du conteneur */
+    position: relative;
+    display: inline-block;
+    font-size: 2rem;
+    white-space: nowrap;
+    top:0;
+  }
+   
+  .messagedefilant div span, 
+  .messagedefilant div:after {
+    position: relative;
+    display: inline-block;
+    font-size: 2rem;
+    white-space: nowrap;
+    top:0;
+  }
+   
+  .messagedefilant div span {
+    animation: defilement 40s infinite linear;
+  }
+  @keyframes defilement {
+    0% { margin-left: -20%; }
+    0% { margin-left: -100%; }
+  }
