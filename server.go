@@ -14,6 +14,12 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
+type test struct {
+	Music   string
+	Artiste []spotify.SimpleArtist
+	Title   string
+}
+
 func main() {
 	ctx := context.Background()
 	config := &clientcredentials.Config{
@@ -31,39 +37,42 @@ func main() {
 	httpClient := spotifyauth.New().Client(ctx, token)
 	// var Realclient *spotify.Client
 	client := spotify.New(httpClient)
-	client.Play(ctx)
 
 	// fmt.Println(Realclient.GetPlaylist(ctx, "2024"))
 
 	// fmt.Println(client.PlayerCurrentlyPlaying(ctx))
 
 	// playlist, err := client.CurrentUsersPlaylists(ctx)
-	playlist, err := client.Search(ctx, "2024", spotify.SearchTypePlaylist)
+	playlists, err := client.Search(ctx, "2024", spotify.SearchTypePlaylist)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("megatest", playlist.Playlists.Playlists[0])
-	if playlist.Playlists != nil {
-		fmt.Println("Playlists:")
-		for _, item := range playlist.Playlists.Playlists[0].Tracks.Endpoint {
-			{
-				fmt.Println("   ", item)
-			}
-		}
-
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			HomePage(w, r)
-		})
-		fs := http.FileServer(http.Dir("static/"))
-		http.Handle("/static/", http.StripPrefix("/static", fs))
-		http.ListenAndServe(":8080", nil)
+	playlistTrack, err := client.GetPlaylistTracks(ctx, playlists.Playlists.Playlists[0].ID)
+	if err != nil {
+		log.Fatalln(err)
 	}
+	fmt.Println(playlistTrack.Tracks[1].Track.ID)
+	// for _, item := range playlist.Playlists.Playlists[0].Tracks {
+	// 	{
+	// 		fmt.Println("   ", item)
+	// 	}
+	// }
+	music := test{string(playlistTrack.Tracks[1].Track.ID), playlistTrack.Tracks[1].Track.Artists, playlistTrack.Tracks[1].Track.Name}
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		HomePage(w, r, &music)
+	})
+	fs := http.FileServer(http.Dir("static/"))
+	http.Handle("/static/", http.StripPrefix("/static", fs))
+	http.ListenAndServe(":8080", nil)
 }
 
-func HomePage(w http.ResponseWriter, r *http.Request) {
+func HomePage(w http.ResponseWriter, r *http.Request, track *test) {
+	println(track.Music)
 	template, err := template.ParseFiles("page/HomePage.html")
 	if err != nil {
 		log.Fatal(err)
 	}
-	template.Execute(w, nil)
+
+	template.Execute(w, track)
 }
