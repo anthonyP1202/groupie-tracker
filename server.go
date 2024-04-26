@@ -26,6 +26,11 @@ func main() {
 
 	})
 
+	http.HandleFunc("/Sign", func(w http.ResponseWriter, r *http.Request) {
+		Sign(w, r)
+
+	})
+
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.ListenAndServe(":8080", nil)
@@ -57,6 +62,14 @@ func Guessong(w http.ResponseWriter, r *http.Request) {
 
 func PetitBac(w http.ResponseWriter, r *http.Request) {
 	template, err := template.ParseFiles("page/PetitBac.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	template.Execute(w, nil)
+}
+
+func Sign(w http.ResponseWriter, r *http.Request) {
+	template, err := template.ParseFiles("page/Sign-in.html")
 	if err != nil {
 		log.Fatal(err)
 	}

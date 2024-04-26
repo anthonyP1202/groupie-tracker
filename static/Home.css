@@ -2,7 +2,8 @@
     width: 100%;
     margin: 0;
     padding: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-weight:bold;
 }
 
 #content-section {
@@ -16,9 +17,10 @@ body {
     width: 100%;
     margin: 0;
     padding: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     background-color: #F1F2EB;
     text-align: center;
+    font-weight: bold;
 }
 
 footer {
@@ -36,14 +38,13 @@ footer h2 {
 .button {
     position: flex;
     display: inline-block;
-    background-color: #7494EA;
     border: none;
-    color: #F1F2EB;
-    padding: 15px 32px;
+    color: #000000;
     text-align: center;
     text-decoration: none;
+    background-color: transparent;
     display: inline-block;
-    font-size: 16px;
+    font-size: 30px;
     margin: 4px 2px;
     cursor: pointer;
 }
@@ -66,7 +67,6 @@ footer h2 {
 .box {
     width: 200%;
     height: 80%;
-    padding: .5em;
     rotate: -30deg; 
     display:flex;
     position:absolute;
@@ -81,12 +81,49 @@ footer h2 {
 .Game {
     display: flex;
     margin: 50px;
+    text-decoration: underline;
     padding: 1% 1%;
-    background-color: #4CAF50;
-    color: #F1F2EB;
+    background-color: #7494EA;
+    color: #FC7753;
     border: 5px solid #F1F2EB;
     cursor: pointer;
-    font-size: 35px;
+    font-size: 50px;
     z-index: -1;
 
+}
+
+.Game2 {
+    display: flex;
+    margin: 50px;
+    text-decoration: underline;
+    padding: 1% 1%;
+    background-color: #717744;
+    color: #7494EA;
+    border: 5px solid #F1F2EB;
+    cursor: pointer;
+    font-size: 50px;
+    z-index: -1;
+
+}
+.Game3 {
+    display: flex;
+    margin: 50px;
+    text-decoration: underline;
+    padding: 1% 1%;
+    background-color: #FC7753;
+    color: #717744;
+    border: 5px solid #F1F2EB;
+    cursor: pointer;
+    font-size: 50px;
+    z-index: -1;
+
+}
+
+.sign{
+    background-color: #7494EA;
+    width: 150px;
+    height: 50px;
+    border-radius: 25px;
+    border:none;
+    font-size: 30px;
 }
