@@ -31,6 +31,11 @@ func main() {
 
 	})
 
+	http.HandleFunc("/Login", func(w http.ResponseWriter, r *http.Request) {
+		Login(w, r)
+
+	})
+
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.ListenAndServe(":8080", nil)
@@ -70,6 +75,14 @@ func PetitBac(w http.ResponseWriter, r *http.Request) {
 
 func Sign(w http.ResponseWriter, r *http.Request) {
 	template, err := template.ParseFiles("page/Sign-in.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	template.Execute(w, nil)
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	template, err := template.ParseFiles("page/Log.html")
 	if err != nil {
 		log.Fatal(err)
 	}
