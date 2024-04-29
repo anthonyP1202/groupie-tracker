@@ -4,7 +4,7 @@ body {
     font-weight:bold;
     margin:0;
     align-items: center;
-    background-color: #7494EA;
+    background-color: #717744;
 }
 .container{
     display: inline-block;
@@ -26,6 +26,7 @@ body {
     width: 100%;
     height: 100%;
     padding:6%;
+    margin: 3%;
     margin-inline:40%;
     background-color: #F1F2EB;
     border:1px solid #000000;
@@ -45,7 +46,7 @@ h1{
 #Rules{
     width: 100%;
     height: 100%;
-    font-size: 17px;
+    font-size: 25px;
     white-space: pre-line; /* Preserve line breaks */
     justify-content: center;
     padding-inline: 0;
@@ -59,7 +60,7 @@ h1{
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    background-color: #fc78538c; /* Set the background color to yellow */
+    background-color: #7494ea80; /* Set the background color to yellow */
     padding: 40px; /* Adjust padding as needed */
     border-radius: 10px; /* Add some border radius for rounded corners */
 }
@@ -67,7 +68,7 @@ h1{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #7494ea7e; /* Set the background color to yellow */
+    background-color: #7177447d; /* Set the background color to yellow */
     padding: 5%; /* Adjust padding as needed */
     padding-inline: 30%;
     border-radius: 100px; /* Add some border radius for rounded corners */
