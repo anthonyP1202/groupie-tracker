@@ -1,0 +1,111 @@
+body {
+    width: 100%;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-weight:bold;
+    margin:0;
+    align-items: center;
+    background-color: #7494EA;
+}
+.container{
+    display: inline-block;
+    align-items: center;
+    width:40%;
+    height:80%;
+    vertical-align: middle;
+}
+
+#nexto{
+    width:90%;
+}
+
+#Search{
+    display:flex;
+    flex-direction: column; /* Display items in a column */
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding:6%;
+    margin-inline:40%;
+    background-color: #F1F2EB;
+    border:1px solid #000000;
+    border-radius: 25px;
+}
+h1{
+    text-align: center;
+    padding:5%;
+    margin: 0;
+    background-color: #F1F2EB;
+    border: none;
+    border-radius: 25px;
+
+
+}
+#Rules{
+    width: 100%;
+    height: 100%;
+    font-size: 17px;
+    white-space: pre-line; /* Preserve line breaks */
+    justify-content: center;
+    padding-inline: 0;
+    margin-inline: 20%;
+}
+
+.People{
+    height: 490px;
+    width:80%;
+    margin: 2%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    background-color: #fc78538c; /* Set the background color to yellow */
+    padding: 40px; /* Adjust padding as needed */
+    border-radius: 10px; /* Add some border radius for rounded corners */
+}
+.selection{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #7494EA; /* Set the background color to yellow */
+    padding: 5%; /* Adjust padding as needed */
+    padding-inline: 30%;
+    border-radius: 100px; /* Add some border radius for rounded corners */
+}
+
+input{
+    background-color:#F1F2EB;
+    border: none;
+    padding: 5%;
+    margin:2%;
+    border-bottom: 3px solid #000000;
+    border-radius: 10px; /* Add some border radius for rounded corners */
+}
+
+.join{
+    background-color:#717744;
+    border: none;
+    padding: 5%;
+    padding-inline: 10%;
+    margin:2%;
+    border-bottom: 3px solid #000000;
+    border-radius: 30px; /* Add some border radius for rounded corners */
+}
+
+.quit{
+    background-color:#FC7753;
+    border: none;
+    padding: 5%;
+    padding-inline: 10%;
+    margin:2%;
+    border-bottom: 3px solid #000000;
+    border-radius: 30px; /* Add some border radius for rounded corners */
+}
+
+.pseudo{
+    font-size:xx-large;
+    display: flex;
+    border-radius: 30px;
+    align-items: center;
+    text-align: center;
+
+}

@@ -36,6 +36,12 @@ func main() {
 
 	})
 
+	//à supprimer à la fin
+	http.HandleFunc("/temp", func(w http.ResponseWriter, r *http.Request) {
+		Temp(w, r)
+
+	})
+
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.ListenAndServe(":8080", nil)
@@ -83,6 +89,15 @@ func Sign(w http.ResponseWriter, r *http.Request) {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	template, err := template.ParseFiles("page/Log.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	template.Execute(w, nil)
+}
+
+// à supprimer à la fin
+func Temp(w http.ResponseWriter, r *http.Request) {
+	template, err := template.ParseFiles("page/temp.html")
 	if err != nil {
 		log.Fatal(err)
 	}
