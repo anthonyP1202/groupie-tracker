@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
@@ -15,9 +17,10 @@ import (
 )
 
 type test struct {
-	Music   string
-	Artiste []spotify.SimpleArtist
-	Title   string
+	OtherMusic string
+	Music      *spotify.PlaylistTrackPage
+	Artiste    []spotify.SimpleArtist
+	Title      string
 }
 
 func main() {
@@ -51,14 +54,20 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(playlistTrack.Tracks[1].Track.ID)
 	// for _, item := range playlist.Playlists.Playlists[0].Tracks {
 	// 	{
 	// 		fmt.Println("   ", item)
 	// 	}
 	// }
-	music := test{string(playlistTrack.Tracks[1].Track.ID), playlistTrack.Tracks[1].Track.Artists, playlistTrack.Tracks[1].Track.Name}
-
+	rnd := 0
+	if playlistTrack.Total < playlistTrack.Limit {
+		rnd = rand.Intn(playlistTrack.Total)
+	} else {
+		rnd = rand.Intn(playlistTrack.Limit)
+	}
+	fmt.Println(rnd)
+	music := test{string(playlistTrack.Tracks[rnd].Track.ID), playlistTrack, playlistTrack.Tracks[rnd].Track.Artists, playlistTrack.Tracks[rnd].Track.Name}
+	// .Tracks[rnd].Track.ID
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		HomePage(w, r, &music)
 	})
@@ -68,11 +77,28 @@ func main() {
 }
 
 func HomePage(w http.ResponseWriter, r *http.Request, track *test) {
-	println(track.Music)
+
 	template, err := template.ParseFiles("page/HomePage.html")
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	template.Execute(w, track)
+	for {
+
+		rnd := 0
+		if track.Music.Total < track.Music.Limit {
+			rnd = rand.Intn(track.Music.Total)
+		} else {
+			rnd = rand.Intn(track.Music.Limit)
+		}
+
+		track.OtherMusic = string(string(track.Music.Tracks[rnd].Track.ID))
+		track.Artiste = (track.Music.Tracks[rnd].Track.Artists)
+		track.Title = (track.Music.Tracks[rnd].Track.Name)
+		fmt.Println(track.Title)
+		template.Execute(w, track)
+		time.Sleep(5 * time.Second)
+
+	}
 }
