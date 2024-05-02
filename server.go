@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"grouptrack/webSocket"
 	"log"
 	"strconv"
 
+	"github.com/gorilla/websocket"
 	_ "github.com/mattn/go-sqlite3"
 
 	"fmt"
@@ -13,16 +15,34 @@ import (
 	// "unicode"
 )
 
+/**
+************************************************* VARIABLES ***************************************************
+**/
+
 var tpl *template.Template
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+/**
+************************************************* MAIN CODE ***************************************************
+**/
 
 func main() {
 
 	tpl, _ = template.ParseGlob("page/*.html")
+
+	http.HandleFunc("/ws", webSocket.WebsocketHandler)
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/registerauth", registerAuthHandler)
+
 	http.ListenAndServe("localhost:8800", nil)
 }
 
@@ -30,6 +50,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****homeHandler running*****")
 	tpl.ExecuteTemplate(w, "HomePage.html", nil)
 }
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loginHandler running*****")
 	tpl.ExecuteTemplate(w, "login.html", nil)
