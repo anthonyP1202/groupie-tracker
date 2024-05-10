@@ -13,11 +13,13 @@ import (
 
 	"text/template"
 
+	lyrics "github.com/rhnvrm/lyric-api-go"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
 type test struct {
 	Id         int
+	Lyrics     string
 	PreviewURL string
 	OtherMusic string
 	Music      *spotify.PlaylistTrackPage
@@ -34,30 +36,23 @@ func main() {
 	}
 
 	token, err := config.Token(ctx)
-	// fmt.Println(token)
 	if err != nil {
 		log.Fatalf("couldn't get token: %v", err)
 	}
 
 	httpClient := spotifyauth.New().Client(ctx, token)
-	// var Realclient *spotify.Client
 	client := spotify.New(httpClient)
-
-	// playlist, err := client.CurrentUsersPlaylists(ctx)
-	playlists, err := client.Search(ctx, "BLINDTEST ", spotify.SearchTypePlaylist)
-	fmt.Println(playlists.Playlists.Playlists[0].Name)
+	playlists, err := client.GetPlaylist(ctx, "6FPetUGNfFzaltVi4omGH0")
+	fmt.Println(playlists.Name + "*")
+	fmt.Println(playlists.ID + "*")
 	if err != nil {
 		log.Fatal(err)
 	}
-	playlistTrack, err := client.GetPlaylistTracks(ctx, playlists.Playlists.Playlists[0].ID)
+	playlistTrack, err := client.GetPlaylistTracks(ctx, playlists.ID)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// for _, item := range playlist.Playlists.Playlists[0].Tracks {
-	// 	{
-	// 		fmt.Println("   ", item)
-	// 	}
-	// }
+
 	rnd := 0
 	if playlistTrack.Total < playlistTrack.Limit {
 		rnd = rand.Intn(playlistTrack.Total)
@@ -65,19 +60,30 @@ func main() {
 		rnd = rand.Intn(playlistTrack.Limit)
 	}
 	fmt.Println(playlistTrack.Tracks[rnd].Track.PreviewURL)
-	music := test{rnd, playlistTrack.Tracks[rnd].Track.PreviewURL, string(playlistTrack.Tracks[rnd].Track.ID), playlistTrack, playlistTrack.Tracks[rnd].Track.Artists, playlistTrack.Tracks[rnd].Track.Name}
-	// .Tracks[rnd].Track.ID
+	l := lyrics.New()
+	lyric, err := l.Search("John Lennon", "Imagine")
+
+	if err != nil {
+		fmt.Printf("Lyrics for John Lennon - imagine were not found")
+	}
+
+	music := test{rnd, lyric, playlistTrack.Tracks[rnd].Track.PreviewURL, string(playlistTrack.Tracks[rnd].Track.ID), playlistTrack, playlistTrack.Tracks[rnd].Track.Artists, playlistTrack.Tracks[rnd].Track.Name}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		HomePage(w, r, &music)
 	})
 
-	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/BlindTest", func(w http.ResponseWriter, r *http.Request) {
 		BlindTest(w, r, &music)
+	})
+
+	http.HandleFunc("/GuessSong", func(w http.ResponseWriter, r *http.Request) {
+		guessSong(w, r, &music)
 	})
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.ListenAndServe(":8080", nil)
+
 }
 
 func HomePage(w http.ResponseWriter, r *http.Request, track *test) {
@@ -104,20 +110,23 @@ func BlindTest(w http.ResponseWriter, r *http.Request, track *test) {
 	}
 
 	// rndList := []int{}
-	rnd := 0
-	// contained := 0
-	if track.Music.Total < track.Music.Limit {
-		rnd = rand.Intn(track.Music.Total)
-	} else {
-		rnd = rand.Intn(track.Music.Limit)
+	track.PreviewURL = ""
+	for track.PreviewURL == "" {
+
+		rnd := 0
+		// contained := 0
+		if track.Music.Total < track.Music.Limit {
+			rnd = rand.Intn(track.Music.Total)
+		} else {
+			rnd = rand.Intn(track.Music.Limit)
+		}
+		track.PreviewURL = track.Music.Tracks[rnd].Track.PreviewURL
+
+		track.OtherMusic = string(track.Music.Tracks[rnd].Track.ID)
+		track.Artiste = (track.Music.Tracks[rnd].Track.Artists)
+		track.Title = (track.Music.Tracks[rnd].Track.Name)
+		fmt.Println(track.Title)
 	}
-
-	track.PreviewURL = track.Music.Tracks[rnd].Track.PreviewURL
-	track.OtherMusic = string(track.Music.Tracks[rnd].Track.ID)
-	track.Artiste = (track.Music.Tracks[rnd].Track.Artists)
-	track.Title = (track.Music.Tracks[rnd].Track.Name)
-	fmt.Println(track.Title + "****")
-
 	template.Execute(w, track)
 
 	// for {
@@ -139,6 +148,40 @@ func BlindTest(w http.ResponseWriter, r *http.Request, track *test) {
 	// 	}
 	// 	contained = 0
 	// }
+}
+
+func guessSong(w http.ResponseWriter, r *http.Request, track *test) {
+	l := lyrics.New()
+	template, err := template.ParseFiles("page/Guessong.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("r.formvalue" + r.FormValue("letter"))
+	if r.FormValue("letter") != "" {
+		if compare(r.FormValue("letter"), track.Title) {
+			fmt.Println("gg")
+		} else {
+			fmt.Println("you're a failure like me")
+		}
+	}
+	track.Lyrics = ""
+	for track.Lyrics == "" {
+
+		rnd := 0
+		// contained := 0
+		if track.Music.Total < track.Music.Limit {
+			rnd = rand.Intn(track.Music.Total)
+		} else {
+			rnd = rand.Intn(track.Music.Limit)
+		}
+		track.Lyrics, err = l.Search(track.Music.Tracks[rnd].Track.Artists[0].Name, track.Music.Tracks[rnd].Track.Name)
+
+		track.OtherMusic = string(track.Music.Tracks[rnd].Track.ID)
+		track.Artiste = (track.Music.Tracks[rnd].Track.Artists)
+		track.Title = (track.Music.Tracks[rnd].Track.Name)
+		fmt.Println(track.Title)
+	}
+	template.Execute(w, track)
 }
 
 func compare(tocompare string, compareto string) bool {
