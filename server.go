@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"grouptrack/webSocket"
+
 	"log"
 	"strconv"
 
@@ -19,14 +19,33 @@ import (
 ************************************************* VARIABLES ***************************************************
 **/
 
+type Cookie struct {
+	Name  string
+	Value string
+}
+
+func helloHandler(w http.ResponseWriter, req *http.Request) {
+	// set cookie for storing token
+	cookie := http.Cookie{}
+	cookie.Name = "accessToken"
+	cookie.Value = "ro8BS6Hiivgzy8Xuu09JDjlNLnSLldY5"
+	http.SetCookie(w, &cookie)
+	fmt.Fprintf(w, "This is cookies!\n")
+}
+
+// type Users struct {
+// 	Id       int
+// 	Pseudo   string
+// 	Email    string
+// 	Password string
+// }
+
 var tpl *template.Template
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
 }
+var clients []websocket.Conn
 
 /**
 ************************************************* MAIN CODE ***************************************************
@@ -36,14 +55,37 @@ func main() {
 
 	tpl, _ = template.ParseGlob("page/*.html")
 
-	http.HandleFunc("/ws", webSocket.WebsocketHandler)
-	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
+		conn, _ := upgrader.Upgrade(w, r, nil)
+		clients = append(clients, *conn)
+
+		for {
+			msgType, msg, err := conn.ReadMessage()
+			if err != nil {
+				return
+			}
+
+			fmt.Printf("%s send : %s\n", conn.RemoteAddr(), string(msg))
+
+			for _, client := range clients {
+				if err = client.WriteMessage(msgType, msg); err != nil {
+					return
+				}
+			}
+		}
+	})
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		http.ServeFile(w, r, "page/index.html")
+	})
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/registerauth", registerAuthHandler)
 
-	http.ListenAndServe("localhost:8800", nil)
+	println("Your server run 8080")
+	http.ListenAndServe(":8080", nil)
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +132,13 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 		verifMAIL := pseudo == emailDB
 
 		if (verifPSW && verifPSEUDO) || (verifPSW && verifMAIL) {
+			cookie := http.Cookie{
+				Name:  "accessToken",
+				Value: "ro8BS6Hiivgzy8Xuu09JDjlNLnSLldY5",
+			}
+			http.SetCookie(w, &cookie)
 			fmt.Fprint(w, "You have successfully logged in :)")
+
 			return
 		}
 	}
@@ -159,3 +207,15 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Utilisateur ajouté")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+// func getUser(id int) string {
+// 	db, err := sql.Open("sqlite3", "bdd.db")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	var username string
+// 	defer db.Close() // Ensure the database connection is closed when function returns
+// 	username, err = db.Exec("SELECT pseudo FROM USER WHERE id =?", 5)
+// 	return
+
+// }

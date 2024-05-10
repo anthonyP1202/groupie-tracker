@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .new-class {
+            background-color: green;
+            padding: 10px;
+            color: white;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Golang websocket example</h1>
+    <div class="content">
+        <input type="text" id="input">
+        <button onclick="send()">send message</button>
+    </div>
+    <pre id="output"></pre>
+</body>
+<script>
+    var input = document.getElementById('input')
+    var output = document.getElementById('output')
+    var socket = new WebSocket("ws://localhost:8080/echo")
+
+    output.classList.add("new-class")
+    socket.onopen = function () {
+        output.innerHTML += "Status : You CONNECTED\n"
+    }
+
+    socket.onmessage = function (e) {
+        output.innerHTML += "Message : " + e.data + "\n"
+    }
+
+    function send() {
+        socket.send(input.value)
+        input.value = ""
+    }
+
+</script>
+
+</html>
