@@ -17,7 +17,7 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-type test struct {
+type track struct {
 	Id         int
 	Lyrics     string
 	PreviewURL string
@@ -28,6 +28,8 @@ type test struct {
 }
 
 func main() {
+
+	//set token and create user
 	ctx := context.Background()
 	config := &clientcredentials.Config{
 		ClientID:     "2243f558d2644e81a6b121bd763acd00",
@@ -48,6 +50,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	//create a placeholder track structure
 	playlistTrack, err := client.GetPlaylistTracks(ctx, playlists.ID)
 	if err != nil {
 		log.Fatalln(err)
@@ -66,8 +70,8 @@ func main() {
 	if err != nil {
 		fmt.Printf("Lyrics for John Lennon - imagine were not found")
 	}
-
-	music := test{rnd, lyric, playlistTrack.Tracks[rnd].Track.PreviewURL, string(playlistTrack.Tracks[rnd].Track.ID), playlistTrack, playlistTrack.Tracks[rnd].Track.Artists, playlistTrack.Tracks[rnd].Track.Name}
+	
+	music := track{rnd, lyric, playlistTrack.Tracks[rnd].Track.PreviewURL, string(playlistTrack.Tracks[rnd].Track.ID), playlistTrack, playlistTrack.Tracks[rnd].Track.Artists, playlistTrack.Tracks[rnd].Track.Name}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		HomePage(w, r, &music)
@@ -86,7 +90,7 @@ func main() {
 
 }
 
-func HomePage(w http.ResponseWriter, r *http.Request, track *test) {
+func HomePage(w http.ResponseWriter, r *http.Request, track *track) {
 
 	template, err := template.ParseFiles("page/HomePage.html")
 	if err != nil {
@@ -95,7 +99,7 @@ func HomePage(w http.ResponseWriter, r *http.Request, track *test) {
 	template.Execute(w, track)
 }
 
-func BlindTest(w http.ResponseWriter, r *http.Request, track *test) {
+func BlindTest(w http.ResponseWriter, r *http.Request, track *track) {
 	template, err := template.ParseFiles("page/BlindTest.html")
 	if err != nil {
 		log.Fatal(err)
@@ -150,7 +154,7 @@ func BlindTest(w http.ResponseWriter, r *http.Request, track *test) {
 	// }
 }
 
-func guessSong(w http.ResponseWriter, r *http.Request, track *test) {
+func guessSong(w http.ResponseWriter, r *http.Request, track *track) {
 	l := lyrics.New()
 	template, err := template.ParseFiles("page/Guessong.html")
 	if err != nil {
