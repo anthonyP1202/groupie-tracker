@@ -564,3 +564,116 @@ func compare(tocompare string, compareto string) bool {
 	// return maxmistake > mistake
 	return true
 }
+
+// type LeaderboardRow struct {
+// 	Pseudo string
+// 	Score  int
+// }
+
+// // Structure pour représenter un utilisateur
+// type User struct {
+// 	ID     int
+// 	Pseudo string
+// 	Email  string
+// }
+
+// // Structure pour représenter les points d'un utilisateur dans une salle
+// type RoomUser struct {
+// 	UserID int
+// 	Score  int
+// }
+
+// // Structure pour représenter les données du leaderboard
+// type LeaderboardEntry struct {
+// 	User  User
+// 	Score int
+// }
+
+// func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
+// 	// Connexion à la base de données
+// 	db, err := sql.Open("sqlite3", "bdd.db")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer db.Close()
+
+// 	// Requête SQL pour récupérer les données du leaderboard
+// 	rows, err := db.Query(`
+//         SELECT u.id, u.pseudo, ru.score
+//         FROM ROOM_USERS ru
+//         INNER JOIN USER u ON ru.id_user = u.id
+//         ORDER BY ru.score DESC
+//     `)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer rows.Close()
+
+// 	// Stockage des données du leaderboard dans une slice de LeaderboardEntry
+// 	var leaderboard []LeaderboardEntry
+// 	for rows.Next() {
+// 		var user User
+// 		var score int
+// 		err := rows.Scan(&user.ID, &user.Pseudo, &score)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+// 		leaderboard = append(leaderboard, LeaderboardEntry{User: user, Score: score})
+// 	}
+// 	if err := rows.Err(); err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	// Utilisation d'un moteur de template pour générer le HTML
+// 	tmpl, err := template.New("leaderboard").Parse(`
+//         <!DOCTYPE html>
+//         <html lang="en">
+//         <head>
+//             <meta charset="UTF-8">
+//             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//             <title>Leaderboard</title>
+//             <link rel="stylesheet" type="text/css" href="./static/BT.css" />
+//         </head>
+//         <body>
+//             <div id="nexto">
+//                 <div class="container">
+//                     <h1>Leaderboard</h1>
+//                     <table>
+//                         <tr>
+//                             <th>User</th>
+//                             <th>Score</th>
+//                         </tr>
+//                         {{range .}}
+//                         <tr>
+//                             <td>{{.User.Pseudo}}</td>
+//                             <td>{{.Score}}</td>
+//                         </tr>
+//                         {{end}}
+//                     </table>
+//                 </div>
+//                 <div class="container">
+//                     <section id="Search">
+//                         <div class="People">
+//                             <form id="prompt" action="" method="post">
+//                                 <input class="field" type="text" name="letter"><input type="submit" value="envoyer">
+//                             </form>
+//                         </div>
+//                         <div class="selection">
+//                             <audio controls src="{{.PreviewURL}}"></audio>
+//                         </div>
+//                     </section>
+//                 </div>
+//             </div>
+//         </body>
+//         </html>
+//     `)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	// Exécution du template avec les données du leaderboard
+// 	err = tmpl.Execute(w, leaderboard)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// }
