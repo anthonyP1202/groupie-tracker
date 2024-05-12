@@ -301,8 +301,43 @@ func createCodeHandler(w http.ResponseWriter, r *http.Request) {
 	// Récupérer les données du formulaire
 	r.ParseForm()
 	code := r.Form.Get("code")
-	fmt.Println("Code Create:", code)
 
 	// Répondre au client
 	fmt.Fprintf(w, "Code Create: %s", code)
+
+	db, err := sql.Open("sqlite3", "bdd.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close() // Assurez-vous de fermer la connexion à la base de données une fois que vous avez terminé
+	cookie, err := r.Cookie("pseudo")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Vérifier si le nom de la ROOMS existe déjà
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM ROOMS WHERE name = ?", code).Scan(&count)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if count > 0 {
+		fmt.Println("Le nom de la ROOMS existe déjà")
+		// Vous pouvez choisir de renvoyer un message d'erreur au client ou effectuer une redirection
+		http.Error(w, "Le nom de la ROOMS existe déjà", http.StatusBadRequest)
+		return
+	}
+
+	// Insérer les données dans la base de données
+	result, err := db.Exec("INSERT INTO ROOMS (created_by, max_player, name, id_game) VALUES (?, ?, ?, ?)", cookie.Value, 4, code, 1)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Récupérer l'ID de la dernière ligne insérée
+	id, err := result.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(id)
 }
