@@ -50,6 +50,26 @@ var clients []websocket.Conn
 func main() {
 
 	tpl, _ = template.ParseGlob("page/*.html")
+
+	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
+		conn, _ := upgrader.Upgrade(w, r, nil)
+		clients = append(clients, *conn)
+
+		for {
+			msgType, msg, err := conn.ReadMessage()
+			if err != nil {
+				return
+			}
+
+			fmt.Printf("%s send : %s\n", conn.RemoteAddr(), string(msg))
+
+			for _, client := range clients {
+				if err = client.WriteMessage(msgType, msg); err != nil {
+					return
+				}
+			}
+		}
+	})
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
