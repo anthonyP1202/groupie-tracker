@@ -1,19 +1,51 @@
 package main
 
 import (
-	"database/sql"
-	"log"
-	"strconv"
-
 	_ "github.com/mattn/go-sqlite3"
 
+	"database/sql"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
-	// "unicode"
+	"strconv"
+
+	"github.com/gorilla/websocket"
 )
 
+// "unicode"
+
+/**
+************************************************* VARIABLES ***************************************************
+**/
+
+type Cookie struct {
+	Name  string
+	Value string
+}
+
+func helloHandler(w http.ResponseWriter, req *http.Request) {
+	// set cookie for storing token
+	cookie := http.Cookie{}
+	cookie.Name = "accessToken"
+	cookie.Value = "ro8BS6Hiivgzy8Xuu09JDjlNLnSLldY5"
+	http.SetCookie(w, &cookie)
+	fmt.Fprintf(w, "This is cookies!\n")
+}
+
+// type Users struct {
+// 	Id       int
+// 	Pseudo   string
+// 	Email    string
+// 	Password string
+// }
+
 var tpl *template.Template
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+var clients []websocket.Conn
 
 func main() {
 
