@@ -44,7 +44,11 @@
         <div class="container">
             <section id="Search">
                 <div class="People">
-                    <input class="pseudo" type="text" placeholder="Pseudonyme">
+                    <form action="/createPTB" method="post">
+                        <input name="code" type="text" placeholder="Code Create">
+                        <button class="create" type="submit">Create</button>
+                    </form>
+
                 </div>
                 <div class="selection">
                     <input type="text" placeholder="Code Game Join">

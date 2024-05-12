@@ -161,6 +161,9 @@ func main() {
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/registerauth", registerAuthHandler)
 	http.HandleFunc("/logout", logoutHandler)
+	http.HandleFunc("/Guessong", GuessongHandler)
+	http.HandleFunc("/BlindTest", BlindTestHandler)
+	http.HandleFunc("/PetitBac", PetitBacHandler)
 
 	http.HandleFunc("/GuessongGame", func(w http.ResponseWriter, r *http.Request) {
 		Guessong(w, r, &music)
@@ -176,7 +179,9 @@ func main() {
 		PetitBacValidation(w, r, &servBac)
 	})
 	http.HandleFunc("/temp", TempHandler)
-	http.HandleFunc("/create", createCodeHandler)
+	http.HandleFunc("/createBlind", createCodeBlindTestHandler)
+	http.HandleFunc("/createGuess", createCodeGuessHandler)
+	http.HandleFunc("/createPTB", createCodePTBHandler)
 	//.....................//
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
@@ -489,13 +494,12 @@ func Temp(w http.ResponseWriter, r *http.Request) {
 	template.Execute(w, nil)
 }
 
-func createCodeHandler(w http.ResponseWriter, r *http.Request) {
+func createCodeBlindTestHandler(w http.ResponseWriter, r *http.Request) {
 	// Récupérer les données du formulaire
 	r.ParseForm()
 	code := r.Form.Get("code")
 
 	// Répondre au client
-	fmt.Fprintf(w, "Code Create: %s", code)
 
 	db, err := sql.Open("sqlite3", "bdd.db")
 	if err != nil {
@@ -532,6 +536,99 @@ func createCodeHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	fmt.Println(id)
+	http.Redirect(w, r, "/BlindTestGame", http.StatusSeeOther)
+
+}
+
+func createCodeGuessHandler(w http.ResponseWriter, r *http.Request) {
+	// Récupérer les données du formulaire
+	r.ParseForm()
+	code := r.Form.Get("code")
+
+	// Répondre au client
+
+	db, err := sql.Open("sqlite3", "bdd.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close() // Assurez-vous de fermer la connexion à la base de données une fois que vous avez terminé
+	cookie, err := r.Cookie("pseudo")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Vérifier si le nom de la ROOMS existe déjà
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM ROOMS WHERE name = ?", code).Scan(&count)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if count > 0 {
+		fmt.Println("Le nom de la ROOMS existe déjà")
+		// Vous pouvez choisir de renvoyer un message d'erreur au client ou effectuer une redirection
+		http.Error(w, "Le nom de la ROOMS existe déjà", http.StatusBadRequest)
+		return
+	}
+
+	// Insérer les données dans la base de données
+	result, err := db.Exec("INSERT INTO ROOMS (created_by, max_player, name, id_game) VALUES (?, ?, ?, ?)", cookie.Value, 4, code, 2)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Récupérer l'ID de la dernière ligne insérée
+	id, err := result.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(id)
+	http.Redirect(w, r, "/GuessongGame", http.StatusSeeOther)
+
+}
+func createCodePTBHandler(w http.ResponseWriter, r *http.Request) {
+	// Récupérer les données du formulaire
+	r.ParseForm()
+	code := r.Form.Get("code")
+
+	// Répondre au client
+
+	db, err := sql.Open("sqlite3", "bdd.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close() // Assurez-vous de fermer la connexion à la base de données une fois que vous avez terminé
+	cookie, err := r.Cookie("pseudo")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Vérifier si le nom de la ROOMS existe déjà
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM ROOMS WHERE name = ?", code).Scan(&count)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if count > 0 {
+		fmt.Println("Le nom de la ROOMS existe déjà")
+		// Vous pouvez choisir de renvoyer un message d'erreur au client ou effectuer une redirection
+		http.Error(w, "Le nom de la ROOMS existe déjà", http.StatusBadRequest)
+		return
+	}
+
+	// Insérer les données dans la base de données
+	result, err := db.Exec("INSERT INTO ROOMS (created_by, max_player, name, id_game) VALUES (?, ?, ?, ?)", cookie.Value, 4, code, 3)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Récupérer l'ID de la dernière ligne insérée
+	id, err := result.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(id)
+	http.Redirect(w, r, "/PetitBacGame", http.StatusSeeOther)
+
 }
 
 func compare(tocompare string, compareto string) bool {
