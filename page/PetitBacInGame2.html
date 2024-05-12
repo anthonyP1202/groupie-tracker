@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/PetitBac">
+        <input type="checkbox" id="artiste" name="Artiste" checked />
+        <label for="artiste">Artiste : {{.Artiste}}</label><br>
+
+        <input type="checkbox" id="Album" name="Album" checked />
+        <label for="Album">Album : {{.Album}}</label><br>
+
+        <input type="checkbox" id="Groupe" name="Groupe" checked />
+        <label for="Groupe">Groupe : {{.Groupe}}</label><br>
+
+        <input type="checkbox" id="Instrument" name="Instrument" checked />
+        <label for="Instrument">Instrument : {{.Instrument}}</label><br>
+
+        <input type="checkbox" id="Featuring" name="Featuring" checked />
+        <label for="Featuring">Featuring : {{.Featuring}}</label><br>
+        <input type= "submit" value="envoyer">
+    </form>
+      
+</body>
+</html>

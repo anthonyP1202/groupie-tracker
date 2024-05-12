@@ -32,6 +32,11 @@ type Cookie struct {
 	Value string
 }
 
+type PetitBacSettings struct {
+	CurrentLetter string
+	letterlist    []string
+}
+
 type track struct {
 	Id         int
 	Lyrics     string
@@ -48,6 +53,14 @@ type track struct {
 // 	Email    string
 // 	Password string
 // }
+
+type answers struct {
+	Artiste    string
+	Album      string
+	Groupe     string
+	Instrument string
+	Featuring  string
+}
 
 var tpl *template.Template
 var upgrader = websocket.Upgrader{
@@ -124,6 +137,8 @@ func main() {
 
 	music := track{0, lyric, playlistTrack.Tracks[0].Track.PreviewURL, string(playlistTrack.Tracks[0].Track.ID), playlistTrack, playlistTrack.Tracks[0].Track.Artists, playlistTrack.Tracks[0].Track.Name}
 
+	servBac := PetitBacSettings{"u", []string{}}
+
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/testing", testHandler)
 	http.HandleFunc("/login", loginHandler)
@@ -133,10 +148,19 @@ func main() {
 	http.HandleFunc("/Guessong", func(w http.ResponseWriter, r *http.Request) {
 		Guessong(w, r, &music)
 	})
+
 	http.HandleFunc("/BlindTest", func(w http.ResponseWriter, r *http.Request) {
 		BlindTest(w, r, &music)
 	})
-	http.HandleFunc("/PetitBac", PetitBacHandler)
+
+	http.HandleFunc("/PetitBac", func(w http.ResponseWriter, r *http.Request) {
+		PetitBac(w, r, &servBac)
+	})
+
+	http.HandleFunc("/PetitBacValidation", func(w http.ResponseWriter, r *http.Request) {
+		PetitBacValidation(w, r, &servBac)
+	})
+
 	http.HandleFunc("/temp", TempHandler)
 	//.....................//
 	fs := http.FileServer(http.Dir("static/"))
@@ -352,12 +376,44 @@ func Guessong(w http.ResponseWriter, r *http.Request, track *track) {
 	template.Execute(w, track)
 }
 
-func PetitBac(w http.ResponseWriter, r *http.Request) {
-	template, err := template.ParseFiles("page/PetitBac.html")
+func PetitBac(w http.ResponseWriter, r *http.Request, setting *PetitBacSettings) {
+	done := 0
+	if r.FormValue("Album") == "on" {
+		println("attempt")
+		//add score 
+	}
+	answers := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
+	letter := "a"
+	
+	for done != 1 {
+		if len(setting.letterlist) == 26{
+
+		}
+		letter = answers[rand.Intn(len(answers))]
+		done = 1
+		for i := 0; i < len(setting.letterlist); i++ {
+			if letter == setting.letterlist[i] {
+				done = 0
+			}
+		}
+	}
+	setting.CurrentLetter = letter
+	setting.letterlist = append(setting.letterlist, letter)
+	template, err := template.ParseFiles("page/PetitBacInGame1.html")
 	if err != nil {
 		log.Fatal(err)
 	}
-	template.Execute(w, nil)
+	template.Execute(w, setting)
+}
+
+func PetitBacValidation(w http.ResponseWriter, r *http.Request, setting *PetitBacSettings) {
+	data := answers{r.FormValue("artiste"), r.FormValue("Album"), r.FormValue("groupe"), r.FormValue("instrum"), r.FormValue("chanson")}
+
+	template, err := template.ParseFiles("page/PetitBacInGame2.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	template.Execute(w, data)
 }
 
 func Sign(w http.ResponseWriter, r *http.Request) {
