@@ -284,7 +284,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func BlindTest(w http.ResponseWriter, r *http.Request, track *track) {
-	template, err := template.ParseFiles("page/BlindTest.html")
+	template, err := template.ParseFiles("page/BlindTestInGame.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -320,7 +320,7 @@ func BlindTest(w http.ResponseWriter, r *http.Request, track *track) {
 
 func Guessong(w http.ResponseWriter, r *http.Request, track *track) {
 	l := lyrics.New()
-	template, err := template.ParseFiles("page/Guessong.html")
+	template, err := template.ParseFiles("page/GuessongInGame.html")
 	if err != nil {
 		log.Fatal(err)
 	}
