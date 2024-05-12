@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	_ "github.com/mattn/go-sqlite3"
 
 	"database/sql"
@@ -67,6 +69,7 @@ func main() {
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/registerauth", registerAuthHandler)
+	http.HandleFunc("/logout", logoutHandler)
 	http.HandleFunc("/Guessong", GuessongHandler)
 	http.HandleFunc("/BlindTest", BlindTestHandler)
 	http.HandleFunc("/PetitBac", PetitBacHandler)
@@ -78,13 +81,39 @@ func main() {
 	http.ListenAndServe("localhost:8800", nil)
 }
 
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("cacao")
+	// Supprimer le cookie d'authentification
+	cookie := http.Cookie{
+		Name:    "pseudo",        // Nom du cookie à supprimer
+		Value:   "",              // Effacer la valeur du cookie
+		Expires: time.Unix(0, 0), // Rendre le cookie expiré
+		MaxAge:  -1,              // Fixer le temps de vie négatif pour rendre le cookie expiré
+		Path:    "/",             // Assurez-vous que le chemin correspond au cookie que vous souhaitez supprimer
+	}
+	http.SetCookie(w, &cookie)
+
+	// Rediriger l'utilisateur vers la page d'accueil ou toute autre page
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func testHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****homeHandler running*****")
 	tpl.ExecuteTemplate(w, "index.html", nil)
 }
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	loggedIn := false
+	if _, err := r.Cookie("pseudo"); err == nil {
+		loggedIn = true
+	}
+
+	data := struct {
+		LoggedIn bool
+	}{
+		LoggedIn: loggedIn,
+	}
 	fmt.Println("*****homeHandler running*****")
-	tpl.ExecuteTemplate(w, "HomePage.html", nil)
+	tpl.ExecuteTemplate(w, "HomePage.html", data)
 }
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loginHandler running*****")
@@ -143,16 +172,18 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 		if (verifPSW && verifPSEUDO) || (verifPSW && verifMAIL) {
 			cookie := http.Cookie{
-				Name: pseudo,
+				Name:  "pseudo",
+				Value: pseudo,
 			}
 			http.SetCookie(w, &cookie)
-			tpl.ExecuteTemplate(w, "HomePage.html", nil)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 
 			return
 		}
 	}
 	fmt.Println("incorrect password")
 	tpl.ExecuteTemplate(w, "Log.html", "check username and password")
+
 }
 
 // registerAuthHandler creates new user in database

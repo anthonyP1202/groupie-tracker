@@ -5,16 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groupie-Tracker</title>
-    <link rel="stylesheet" type="text/css" href="../static/Home.css" />
-    <link rel="stylesheet" type="text/css" href="../static/style.css" />
+    <link rel="stylesheet" type="text/css" href="./static/Home.css" />
+    <link rel="stylesheet" type="text/css" href="./static/style.css" />
 
 </head>
 
 <body>
     <section id="header-section">
-        <header>
-            <button class="Info" onclick="location.href='Info';">I</button>
-        </header>
+
     </section>
     <section id="content-section">
         <div class="messagedefilant">
@@ -37,10 +35,15 @@
     </section>
     <footer>
         <h2>
+            {{ if .LoggedIn }}
+            <button class="button" onclick="location.href='logout';">Disconnect</button>
+            {{ else }}
             <button class="button" onclick="location.href='login';">Log In</button>
             <button class="sign" onclick="location.href='register';">Sign Up</button>
+            {{ end }}
         </h2>
     </footer>
 </body>
 
-</html>
+
+</body>
