@@ -23,6 +23,13 @@ func main() {
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/registerauth", registerAuthHandler)
+	http.HandleFunc("/Guessong", GuessongHandler)
+	http.HandleFunc("/BlindTest", BlindTestHandler)
+	http.HandleFunc("/PetitBac", PetitBacHandler)
+	http.HandleFunc("/temp", TempHandler)
+	//.....................//
+	fs := http.FileServer(http.Dir("static/"))
+	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.ListenAndServe("localhost:8800", nil)
 }
 
@@ -32,47 +39,29 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loginHandler running*****")
-	tpl.ExecuteTemplate(w, "login.html", nil)
+	tpl.ExecuteTemplate(w, "Log.html", nil)
 }
 
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****registerHandler running*****")
-	tpl.ExecuteTemplate(w, "register.html", nil)
+	tpl.ExecuteTemplate(w, "Sign-in.html", nil)
+}
+func GuessongHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("*****loginHandler running*****")
+	tpl.ExecuteTemplate(w, "Guessong.html", nil)
+}
+func PetitBacHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("*****loginHandler running*****")
+	tpl.ExecuteTemplate(w, "PetitBac.html", nil)
+}
+func BlindTestHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("*****loginHandler running*****")
+	tpl.ExecuteTemplate(w, "BlindTest.html", nil)
+}
 
-	http.HandleFunc("/BlindTest", func(w http.ResponseWriter, r *http.Request) {
-		BlindTest(w, r)
-
-	})
-
-	http.HandleFunc("/Guessong", func(w http.ResponseWriter, r *http.Request) {
-		Guessong(w, r)
-
-	})
-
-	http.HandleFunc("/PetitBac", func(w http.ResponseWriter, r *http.Request) {
-		PetitBac(w, r)
-
-	})
-
-	http.HandleFunc("/Sign", func(w http.ResponseWriter, r *http.Request) {
-		Sign(w, r)
-
-	})
-
-	http.HandleFunc("/Login", func(w http.ResponseWriter, r *http.Request) {
-		Login(w, r)
-
-	})
-
-	//à supprimer à la fin
-	http.HandleFunc("/temp", func(w http.ResponseWriter, r *http.Request) {
-		Temp(w, r)
-
-	})
-
-	fs := http.FileServer(http.Dir("static/"))
-	http.Handle("/static/", http.StripPrefix("/static", fs))
-	http.ListenAndServe(":8080", nil)
+func TempHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("*****loginHandler running*****")
+	tpl.ExecuteTemplate(w, "temp.html", nil)
 }
 
 // loginAuthHandler authenticates user login
