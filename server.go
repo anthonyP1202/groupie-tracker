@@ -28,11 +28,6 @@ import (
 ************************************************* VARIABLES ***************************************************
 **/
 
-type Cookie struct {
-	Name  string
-	Value string
-}
-
 type PetitBacSettings struct {
 	CurrentLetter string
 	letterlist    []string
@@ -63,16 +58,6 @@ type answers struct {
 	Featuring  string
 }
 
-	"database/sql"
-	"fmt"
-	"html/template"
-	"log"
-	"net/http"
-	"strconv"
-
-	"github.com/gorilla/websocket"
-)
-
 // "unicode"
 
 /**
@@ -92,16 +77,12 @@ type Cookie struct {
 // }
 
 var tpl *template.Template
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
+
 var clients []websocket.Conn
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
-var clients []websocket.Conn
 
 func main() {
 
@@ -175,15 +156,24 @@ func main() {
 
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/testing", testHandler)
-	http.HandleFunc("/testing", testHandler)
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/registerauth", registerAuthHandler)
 	http.HandleFunc("/logout", logoutHandler)
-	http.HandleFunc("/Guessong", GuessongHandler)
-	http.HandleFunc("/BlindTest", BlindTestHandler)
-	http.HandleFunc("/PetitBac", PetitBacHandler)
+	http.HandleFunc("/Guessong", func(w http.ResponseWriter, r *http.Request) {
+		Guessong(w, r, &music)
+	})
+	http.HandleFunc("/BlindTest", func(w http.ResponseWriter, r *http.Request) {
+		BlindTest(w, r, &music)
+	})
+	http.HandleFunc("/PetitBac", func(w http.ResponseWriter, r *http.Request) {
+		PetitBac(w, r, &servBac)
+	})
+
+	http.HandleFunc("/PetitBacValidation", func(w http.ResponseWriter, r *http.Request) {
+		PetitBacValidation(w, r, &servBac)
+	})
 	http.HandleFunc("/temp", TempHandler)
 	http.HandleFunc("/create", createCodeHandler)
 	//.....................//
@@ -267,8 +257,7 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	pseudo := r.Form.Get("Username")
 	password := r.Form.Get("password")
-	pseudo := r.Form.Get("Username")
-	password := r.Form.Get("password")
+
 	fmt.Println("pseudo:", pseudo, "password:", password)
 
 	rows, _ := db.Query("SELECT * FROM USER;")
@@ -438,13 +427,13 @@ func PetitBac(w http.ResponseWriter, r *http.Request, setting *PetitBacSettings)
 	done := 0
 	if r.FormValue("Album") == "on" {
 		println("attempt")
-		//add score 
+		//add score
 	}
 	answers := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 	letter := "a"
-	
+
 	for done != 1 {
-		if len(setting.letterlist) == 26{
+		if len(setting.letterlist) == 26 {
 
 		}
 		letter = answers[rand.Intn(len(answers))]
@@ -545,30 +534,33 @@ func createCodeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func compare(tocompare string, compareto string) bool {
-	comparetobigger := 0
+	// comparetobigger := 0
 	fmt.Println(tocompare + " " + compareto)
 	tocompare = strings.ToLower(tocompare)
 	compareto = strings.ToLower(compareto)
-	maxmistake := len(compareto) - (len(compareto) / 10)
-	if len(tocompare) < len(compareto) {
-		comparetobigger = 1
-	}
-	mistake := 0
+	// maxmistake := len(compareto) - (len(compareto) / 10)
+	// if len(tocompare) < len(compareto) {
+	// 	comparetobigger = 1
+	// }
+	// mistake := 0
 	fmt.Println(len(compareto))
 	fmt.Println(len(tocompare))
-	if comparetobigger == 1 {
-		for i := 0; i < len(tocompare); i++ {
-			if compareto[i] != tocompare[i] {
-				mistake++
-			}
-		}
-	} else {
-		for i := 0; i < len(compareto); i++ {
-			if compareto[i] != tocompare[i] {
-				mistake++
-			}
-		}
+	// if comparetobigger == 1 {
+	// 	for i := 0; i < len(tocompare); i++ {
+	// 		if compareto[i] != tocompare[i] {
+	// 			mistake++
+	// 		}
+	// 	}
+	// } else {
+	// 	for i := 0; i < len(compareto); i++ {
+	// 		if compareto[i] != tocompare[i] {
+	// 			mistake++
+	// 		}
+	// 	}
+	// }
+	if compareto != tocompare {
+		return false
 	}
-
-	return maxmistake > mistake
+	// return maxmistake > mistake
+	return true
 }
