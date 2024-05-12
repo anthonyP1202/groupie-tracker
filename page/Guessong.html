@@ -30,9 +30,15 @@
         </div>
         <div class="container">
             <section id="Search">
+                <p>lyrics</p>
+                    <p>{{.Lyrics}}</p>
+                    <form id="prompt" action="" method="post">
+                        <input class="field" type="text" name="letter"><input type= "submit" value="envoyer">
+                    </form></center>
                 <div class="People">
                     <input class="pseudo" type="text" placeholder="Pseudonyme"> 
                 </div> 
+                
                     <div class="selection">
                         <input type="text" placeholder="Code Game Join">
                         <button class="join" onclick=Add()>Join</button>
