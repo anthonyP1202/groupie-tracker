@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="../static/PTBGame1.css">
+
 </head>
+
 <body>
     <p>the letter is {{.CurrentLetter}}</p>
     <form id="prompt" action="/PetitBacValidation" method="post">
@@ -13,7 +17,8 @@
         <input class="field" type="text" name="groupe" placeholder="groupe de musique">
         <input class="field" type="text" name="instrum" placeholder="instrument demusique ">
         <input class="field" type="text" name="chanson" placeholder="chanson en featuring">
-        <input type= "submit" value="envoyer">
+        <input type="submit" value="envoyer">
     </form>
 </body>
+
 </html>
