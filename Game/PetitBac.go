@@ -36,10 +36,8 @@ func NouvellePartie() *Game {
 
 // Endpoint pour démarrer une nouvelle partie
 func startGameHandler(w http.ResponseWriter, r *http.Request) {
-	game := NouvellePartie()
 	// Envoyer game aux clients via WebSocket
 }
-git branch
 
 // Endpoint pour rejoindre une partie
 func joinGameHandler(w http.ResponseWriter, r *http.Request) {

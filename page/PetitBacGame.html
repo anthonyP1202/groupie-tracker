@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petit Bac</title>
+    <link rel="stylesheet" href="../static/PTBGame.css">
+</head>
+
+<body>
+    <h1>Petit Bac</h1>
+    <div class="category">
+        <h2>Artiste</h2>
+        <input type="text" id="artistInput" placeholder="Entrez un artiste">
+    </div>
+    <div class="category">
+        <h2>Album</h2>
+        <input type="text" id="albumInput" placeholder="Entrez un album">
+    </div>
+    <div class="category">
+        <h2>Groupe de musique</h2>
+        <input type="text" id="bandInput" placeholder="Entrez un groupe de musique">
+    </div>
+    <div class="category">
+        <h2>Instrument de musique</h2>
+        <input type="text" id="instrumentInput" placeholder="Entrez un instrument de musique">
+    </div>
+    <div class="category">
+        <h2>Featuring</h2>
+        <input type="text" id="featuringInput" placeholder="Entrez un artiste en featuring">
+    </div>
+    <button onclick="submitAnswers()">Soumettre</button>
+
+    <script>
+        function submitAnswers() {
+            var artist = document.getElementById("artistInput").value;
+            var album = document.getElementById("albumInput").value;
+            var band = document.getElementById("bandInput").value;
+            var instrument = document.getElementById("instrumentInput").value;
+            var featuring = document.getElementById("featuringInput").value;
+
+            // Envoyer les réponses au serveur ou effectuer une vérification locale
+            // (Utiliser JavaScript côté serveur ou envoyer une requête AJAX)
+
+            // Exemple de vérification locale (affichage dans la console)
+            console.log("Artiste:", artist);
+            console.log("Album:", album);
+            console.log("Groupe de musique:", band);
+            console.log("Instrument de musique:", instrument);
+            console.log("Featuring:", featuring);
+        }
+    </script>
+</body>
+
+</html>
