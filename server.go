@@ -62,6 +62,7 @@ func main() {
 		}
 	})
 	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/testing", testHandler)
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", registerHandler)
@@ -76,6 +77,10 @@ func main() {
 	http.ListenAndServe("localhost:8800", nil)
 }
 
+func testHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("*****homeHandler running*****")
+	tpl.ExecuteTemplate(w, "index.html", nil)
+}
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****homeHandler running*****")
 	tpl.ExecuteTemplate(w, "HomePage.html", nil)
