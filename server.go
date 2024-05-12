@@ -71,6 +71,7 @@ func main() {
 	http.HandleFunc("/BlindTest", BlindTestHandler)
 	http.HandleFunc("/PetitBac", PetitBacHandler)
 	http.HandleFunc("/temp", TempHandler)
+	http.HandleFunc("/create", createCodeHandler)
 	//.....................//
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
@@ -263,4 +264,14 @@ func Temp(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	template.Execute(w, nil)
+}
+
+func createCodeHandler(w http.ResponseWriter, r *http.Request) {
+	// Récupérer les données du formulaire
+	r.ParseForm()
+	code := r.Form.Get("code")
+	fmt.Println("Code Create:", code)
+
+	// Répondre au client
+	fmt.Fprintf(w, "Code Create: %s", code)
 }
