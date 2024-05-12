@@ -24,15 +24,6 @@ type Cookie struct {
 	Value string
 }
 
-func helloHandler(w http.ResponseWriter, req *http.Request) {
-	// set cookie for storing token
-	cookie := http.Cookie{}
-	cookie.Name = "accessToken"
-	cookie.Value = "ro8BS6Hiivgzy8Xuu09JDjlNLnSLldY5"
-	http.SetCookie(w, &cookie)
-	fmt.Fprintf(w, "This is cookies!\n")
-}
-
 // type Users struct {
 // 	Id       int
 // 	Pseudo   string
@@ -145,6 +136,10 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 		verifMAIL := pseudo == emailDB
 
 		if (verifPSW && verifPSEUDO) || (verifPSW && verifMAIL) {
+			cookie := http.Cookie{
+				Name: pseudo,
+			}
+			http.SetCookie(w, &cookie)
 			tpl.ExecuteTemplate(w, "HomePage.html", nil)
 
 			return
