@@ -161,13 +161,14 @@ func main() {
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/registerauth", registerAuthHandler)
 	http.HandleFunc("/logout", logoutHandler)
-	http.HandleFunc("/Guessong", func(w http.ResponseWriter, r *http.Request) {
+
+	http.HandleFunc("/GuessongGame", func(w http.ResponseWriter, r *http.Request) {
 		Guessong(w, r, &music)
 	})
-	http.HandleFunc("/BlindTest", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/BlindTestGame", func(w http.ResponseWriter, r *http.Request) {
 		BlindTest(w, r, &music)
 	})
-	http.HandleFunc("/PetitBac", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/PetitBacGame", func(w http.ResponseWriter, r *http.Request) {
 		PetitBac(w, r, &servBac)
 	})
 
