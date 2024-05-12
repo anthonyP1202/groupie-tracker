@@ -11,12 +11,15 @@
 <body>
     <div class="Inside">
         <div class="Input">
-            <input type="text" placeholder="Username">
-            <input type="text" placeholder="Password">
-            <div class="button">
-                <a href="#">Log In</a>"
-                <a href="#">I forgot my password</a>"
-            </div>
+            <form action="/loginauth" method="post">
+                <input type="text" name="Username" id="Username" placeholder="Username">
+                <input type="password" name="password" id="password" placeholder="Password">
+                <div class="button">
+                    <!-- <a href="/loginauth">Log In</a>" -->
+                    <button type="submit">Log In</button>
+
+                </div>
+            </form>
         </div>
     </div>
 </body>

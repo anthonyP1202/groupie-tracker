@@ -75,8 +75,8 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.ParseForm()
-	pseudo := r.FormValue("pseudo")
-	password := r.FormValue("password")
+	pseudo := r.Form.Get("Username")
+	password := r.Form.Get("password")
 	fmt.Println("pseudo:", pseudo, "password:", password)
 
 	rows, _ := db.Query("SELECT * FROM USER;")
@@ -93,12 +93,13 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 		verifMAIL := pseudo == emailDB
 
 		if (verifPSW && verifPSEUDO) || (verifPSW && verifMAIL) {
-			fmt.Fprint(w, "You have successfully logged in :)")
+			tpl.ExecuteTemplate(w, "HomePage.html", nil)
+
 			return
 		}
 	}
 	fmt.Println("incorrect password")
-	tpl.ExecuteTemplate(w, "login.html", "check username and password")
+	tpl.ExecuteTemplate(w, "Log.html", "check username and password")
 }
 
 // registerAuthHandler creates new user in database
@@ -123,7 +124,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	// Check if passwords match
 	if password != confipassword {
 		fmt.Println("Les mots de passe ne correspondent pas")
-		tpl.ExecuteTemplate(w, "register.html", "Les mots de passe ne correspondent pas")
+		tpl.ExecuteTemplate(w, "Sign-in.html", "Les mots de passe ne correspondent pas")
 		return
 	}
 
@@ -136,7 +137,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if count > 0 {
 		fmt.Println("Ce pseudo est déjà utilisé")
-		tpl.ExecuteTemplate(w, "register.html", "Ce pseudo est déjà utilisé")
+		tpl.ExecuteTemplate(w, "Sign-in.html", "Ce pseudo est déjà utilisé")
 		return
 	}
 
@@ -148,7 +149,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if count > 0 {
 		fmt.Println("Cet email est déjà utilisé")
-		tpl.ExecuteTemplate(w, "register.html", "Cet email est déjà utilisé")
+		tpl.ExecuteTemplate(w, "Sign-in.html", "Cet email est déjà utilisé")
 		return
 	}
 

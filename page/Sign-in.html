@@ -11,13 +11,15 @@
 <body>
     <div class="Inside">
         <div class="Input">
-            <input type="text" placeholder="Username">
-            <input type="text" placeholder="Email">
-            <input type="text" placeholder="Password">
-            <input type="text" placeholder="Confirm Password">
-            <div class="button">
-                <a href="#">Sign Up</a>"
-            </div>
+            <form action="/registerauth" method="POST">
+                <input type="text" name="username" placeholder="Username">
+                <input type="text" name="email" placeholder="Email">
+                <input type="text" name="password" placeholder="Password">
+                <input type="text" name="confipassword" placeholder="Confirm Password">
+                <div class="button">
+                    <button type="submit">Sign Up</button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
