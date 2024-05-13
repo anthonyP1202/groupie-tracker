@@ -369,6 +369,11 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func BlindTest(w http.ResponseWriter, r *http.Request, track *track) {
+	db, err := sql.Open("sqlite3", "bdd.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close() // Ensure the database connection is closed when function returns
 	template, err := template.ParseFiles("page/BlindTestInGame.html")
 	if err != nil {
 		log.Fatal(err)
@@ -377,6 +382,36 @@ func BlindTest(w http.ResponseWriter, r *http.Request, track *track) {
 	if r.FormValue("letter") != "" {
 		if compare(r.FormValue("letter"), track.Title) {
 			fmt.Println("gg")
+			stmt := `
+        UPDATE ROOM_USERS
+        SET score = score + 1
+        WHERE id_room = (
+            SELECT id
+            FROM ROOMS
+            WHERE name = ?
+        )
+        AND id_user = (
+            SELECT id
+            FROM USER
+            WHERE pseudo = ?
+        )
+    `
+			cookie, err := r.Cookie("CodeRoom")
+			if err != nil {
+				log.Fatal(err)
+			}
+			roomName := cookie.Value
+			cookie2, err := r.Cookie("pseudo")
+			if err != nil {
+				log.Fatal(err)
+			}
+			username := cookie2.Value
+			_, err = db.Exec(stmt, roomName, username)
+			if err != nil {
+				http.Error(w, "Failed to increment score in database", http.StatusInternalServerError)
+				return
+			}
+
 		} else {
 			fmt.Println("you're a failure like me")
 		}
@@ -404,6 +439,11 @@ func BlindTest(w http.ResponseWriter, r *http.Request, track *track) {
 }
 
 func Guessong(w http.ResponseWriter, r *http.Request, track *track) {
+	db, err := sql.Open("sqlite3", "bdd.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close() // Ensure the database connection is closed when function returns
 	l := lyrics.New()
 	template, err := template.ParseFiles("page/GuessongInGame.html")
 	if err != nil {
@@ -413,6 +453,35 @@ func Guessong(w http.ResponseWriter, r *http.Request, track *track) {
 	if r.FormValue("letter") != "" {
 		if compare(r.FormValue("letter"), track.Title) {
 			fmt.Println("gg")
+			stmt := `
+        UPDATE ROOM_USERS
+        SET score = score + 1
+        WHERE id_room = (
+            SELECT id
+            FROM ROOMS
+            WHERE name = ?
+        )
+        AND id_user = (
+            SELECT id
+            FROM USER
+            WHERE pseudo = ?
+        )
+    `
+			cookie, err := r.Cookie("CodeRoom")
+			if err != nil {
+				log.Fatal(err)
+			}
+			roomName := cookie.Value
+			cookie2, err := r.Cookie("pseudo")
+			if err != nil {
+				log.Fatal(err)
+			}
+			username := cookie2.Value
+			_, err = db.Exec(stmt, roomName, username)
+			if err != nil {
+				http.Error(w, "Failed to increment score in database", http.StatusInternalServerError)
+				return
+			}
 		} else {
 			fmt.Println("you're a failure like me")
 		}
@@ -438,18 +507,69 @@ func Guessong(w http.ResponseWriter, r *http.Request, track *track) {
 }
 
 func PetitBac(w http.ResponseWriter, r *http.Request, setting *PetitBacSettings) {
+	db, err := sql.Open("sqlite3", "bdd.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	nbCoorect := 0
+	defer db.Close() // Ensure the database connection is closed when function returns
 	done := 0
 	if r.FormValue("Album") == "on" {
-		println("attempt")
+		nbCoorect += 1
 		//add score
 	}
+	if r.FormValue("Artiste") == "on" {
+		nbCoorect += 1
+		//add score
+	}
+	if r.FormValue("Groupe") == "on" {
+		nbCoorect += 1
+		//add score
+	}
+	if r.FormValue("Instrument") == "on" {
+		nbCoorect += 1
+		//add score
+	}
+	if r.FormValue("Featuring") == "on" {
+		nbCoorect += 1
+		//add score
+	}
+	fmt.Println("NB" + strconv.Itoa(nbCoorect))
+	stmt := `
+	UPDATE ROOM_USERS
+	SET score = score + ?
+	WHERE id_room = (
+		SELECT id
+		FROM ROOMS
+		WHERE name = ?
+	)
+	AND id_user = (
+		SELECT id
+		FROM USER
+		WHERE pseudo = ?
+	)
+`
+	cookie, err := r.Cookie("CodeRoom")
+	if err != nil {
+		log.Fatal(err)
+	}
+	roomName := cookie.Value
+	cookie2, err := r.Cookie("pseudo")
+	if err != nil {
+		log.Fatal(err)
+	}
+	username := cookie2.Value
+	_, err = db.Exec(stmt, nbCoorect, roomName, username)
+	if err != nil {
+		http.Error(w, "Failed to increment score in database", http.StatusInternalServerError)
+		return
+	}
+
 	answers := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 	letter := "a"
 
 	for done != 1 {
-		if len(setting.letterlist) == 26 {
 
-		}
 		letter = answers[rand.Intn(len(answers))]
 		done = 1
 		for i := 0; i < len(setting.letterlist); i++ {
