@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"math/rand"
+	"regexp"
 	"strings"
 
 	"database/sql"
@@ -166,12 +167,15 @@ func main() {
 	http.HandleFunc("/PetitBac", PetitBacHandler)
 
 	http.HandleFunc("/GuessongGame", func(w http.ResponseWriter, r *http.Request) {
+		leaderboardHandler(w, r)
 		Guessong(w, r, &music)
 	})
 	http.HandleFunc("/BlindTestGame", func(w http.ResponseWriter, r *http.Request) {
+		leaderboardHandler(w, r)
 		BlindTest(w, r, &music)
 	})
 	http.HandleFunc("/PetitBacGame", func(w http.ResponseWriter, r *http.Request) {
+		leaderboardHandler(w, r)
 		PetitBac(w, r, &servBac)
 	})
 
@@ -224,7 +228,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loginHandler running*****")
-	tpl.ExecuteTemplate(w, "Log.html", nil)
 	tpl.ExecuteTemplate(w, "Log.html", nil)
 }
 
@@ -316,9 +319,8 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if passwords match
 	if password != confipassword {
-		fmt.Println("Les mots de passe ne correspondent pas")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Les mots de passe ne correspondent pas")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Les mots de passe ne correspondent pas")
+		errorMessage := "Les mots de passe ne correspondent pas"
+		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
 		return
 	}
 
@@ -330,9 +332,8 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if count > 0 {
-		fmt.Println("Ce pseudo est déjà utilisé")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Ce pseudo est déjà utilisé")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Ce pseudo est déjà utilisé")
+		errorMessage := ("Ce pseudo est déjà utilisé")
+		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
 		return
 	}
 
@@ -343,9 +344,16 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if count > 0 {
-		fmt.Println("Cet email est déjà utilisé")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Cet email est déjà utilisé")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Cet email est déjà utilisé")
+		errorMessage := ("Cet email est déjà utilisé")
+		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
+		return
+	}
+
+	// Validate password
+	isValid, message := validatePassword(password)
+	if !isValid {
+		errorMessage := "Mot de passe non valide: " + message
+		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
 		return
 	}
 
@@ -530,12 +538,39 @@ func createCodeBlindTestHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	query := "SELECT id FROM USER WHERE pseudo = @pseudo"
+	var userID int
+	err = db.QueryRow(query, sql.Named("pseudo", cookie.Value)).Scan(&userID)
+	if err != nil {
+		fmt.Println("Erreur lors de l'exécution de la requête:", err)
+		return
+	}
+	fmt.Println("FINTEST")
+
 	// Récupérer l'ID de la dernière ligne insérée
-	id, err := result.LastInsertId()
+	idroom, err := result.LastInsertId()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(id)
+
+	fmt.Println(idroom)
+
+	result2, err := db.Exec("INSERT INTO ROOM_USERS (id_room, id_user, score) VALUES (?, ?, ?)", idroom, userID, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	idRoomUser, err := result2.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(idRoomUser)
+	cookieCode := http.Cookie{
+		Name:  "CodeRoom",
+		Value: code,
+	}
+	http.SetCookie(w, &cookieCode)
+
 	http.Redirect(w, r, "/BlindTestGame", http.StatusSeeOther)
 
 }
@@ -576,12 +611,38 @@ func createCodeGuessHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	query := "SELECT id FROM USER WHERE pseudo = @pseudo"
+	var userID int
+	err = db.QueryRow(query, sql.Named("pseudo", cookie.Value)).Scan(&userID)
+	if err != nil {
+		fmt.Println("Erreur lors de l'exécution de la requête:", err)
+		return
+	}
+	fmt.Println("FINTEST")
+
 	// Récupérer l'ID de la dernière ligne insérée
-	id, err := result.LastInsertId()
+	idroom, err := result.LastInsertId()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(id)
+
+	fmt.Println(idroom)
+
+	result2, err := db.Exec("INSERT INTO ROOM_USERS (id_room, id_user, score) VALUES (?, ?, ?)", idroom, userID, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	idRoomUser, err := result2.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(idRoomUser)
+	cookieCode := http.Cookie{
+		Name:  "CodeRoom",
+		Value: code,
+	}
+	http.SetCookie(w, &cookieCode)
 	http.Redirect(w, r, "/GuessongGame", http.StatusSeeOther)
 
 }
@@ -621,12 +682,38 @@ func createCodePTBHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	query := "SELECT id FROM USER WHERE pseudo = @pseudo"
+	var userID int
+	err = db.QueryRow(query, sql.Named("pseudo", cookie.Value)).Scan(&userID)
+	if err != nil {
+		fmt.Println("Erreur lors de l'exécution de la requête:", err)
+		return
+	}
+	fmt.Println("FINTEST")
+
 	// Récupérer l'ID de la dernière ligne insérée
-	id, err := result.LastInsertId()
+	idroom, err := result.LastInsertId()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(id)
+
+	fmt.Println(idroom)
+
+	result2, err := db.Exec("INSERT INTO ROOM_USERS (id_room, id_user, score) VALUES (?, ?, ?)", idroom, userID, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	idRoomUser, err := result2.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(idRoomUser)
+	cookieCode := http.Cookie{
+		Name:  "CodeRoom",
+		Value: code,
+	}
+	http.SetCookie(w, &cookieCode)
 	http.Redirect(w, r, "/PetitBacGame", http.StatusSeeOther)
 
 }
@@ -663,115 +750,145 @@ func compare(tocompare string, compareto string) bool {
 	return true
 }
 
-// type LeaderboardRow struct {
-// 	Pseudo string
-// 	Score  int
-// }
+type LeaderboardRow struct {
+	Pseudo string
+	Score  int
+}
 
-// // Structure pour représenter un utilisateur
-// type User struct {
-// 	ID     int
-// 	Pseudo string
-// 	Email  string
-// }
+// Structure pour représenter un utilisateur
+type User struct {
+	ID     int
+	Pseudo string
+	Email  string
+}
 
-// // Structure pour représenter les points d'un utilisateur dans une salle
-// type RoomUser struct {
-// 	UserID int
-// 	Score  int
-// }
+// Structure pour représenter les points d'un utilisateur dans une salle
+type RoomUser struct {
+	UserID int
+	Score  int
+}
 
-// // Structure pour représenter les données du leaderboard
-// type LeaderboardEntry struct {
-// 	User  User
-// 	Score int
-// }
+// Structure pour représenter les données du leaderboard
+type LeaderboardEntry struct {
+	User  User
+	Score int
+}
 
-// func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
-// 	// Connexion à la base de données
-// 	db, err := sql.Open("sqlite3", "bdd.db")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer db.Close()
+func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
+	// Connexion à la base de données
+	db, err := sql.Open("sqlite3", "bdd.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-// 	// Requête SQL pour récupérer les données du leaderboard
-// 	rows, err := db.Query(`
-//         SELECT u.id, u.pseudo, ru.score
-//         FROM ROOM_USERS ru
-//         INNER JOIN USER u ON ru.id_user = u.id
-//         ORDER BY ru.score DESC
-//     `)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer rows.Close()
+	cookie, err := r.Cookie("CodeRoom")
+	if err != nil {
+		log.Fatal(err)
+	}
+	roomName := cookie.Value
+	fmt.Println(roomName)
+	// Requête SQL pour récupérer les données du leaderboard
+	rows, err := db.Query(`
+	SELECT u.id, u.pseudo, ru.score
+	FROM ROOM_USERS ru
+	INNER JOIN USER u ON ru.id_user = u.id
+	INNER JOIN ROOMS r ON ru.id_room = r.id
+	WHERE r.name = ?
+	ORDER BY ru.score DESC
+    `, roomName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
 
-// 	// Stockage des données du leaderboard dans une slice de LeaderboardEntry
-// 	var leaderboard []LeaderboardEntry
-// 	for rows.Next() {
-// 		var user User
-// 		var score int
-// 		err := rows.Scan(&user.ID, &user.Pseudo, &score)
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 		leaderboard = append(leaderboard, LeaderboardEntry{User: user, Score: score})
-// 	}
-// 	if err := rows.Err(); err != nil {
-// 		log.Fatal(err)
-// 	}
+	// Stockage des données du leaderboard dans une slice de LeaderboardEntry
+	var leaderboard []LeaderboardEntry
+	for rows.Next() {
+		var user User
+		var score int
+		err := rows.Scan(&user.ID, &user.Pseudo, &score)
+		if err != nil {
+			log.Fatal(err)
+		}
+		leaderboard = append(leaderboard, LeaderboardEntry{User: user, Score: score})
+	}
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
 
-// 	// Utilisation d'un moteur de template pour générer le HTML
-// 	tmpl, err := template.New("leaderboard").Parse(`
-//         <!DOCTYPE html>
-//         <html lang="en">
-//         <head>
-//             <meta charset="UTF-8">
-//             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//             <title>Leaderboard</title>
-//             <link rel="stylesheet" type="text/css" href="./static/BT.css" />
-//         </head>
-//         <body>
-//             <div id="nexto">
-//                 <div class="container">
-//                     <h1>Leaderboard</h1>
-//                     <table>
-//                         <tr>
-//                             <th>User</th>
-//                             <th>Score</th>
-//                         </tr>
-//                         {{range .}}
-//                         <tr>
-//                             <td>{{.User.Pseudo}}</td>
-//                             <td>{{.Score}}</td>
-//                         </tr>
-//                         {{end}}
-//                     </table>
-//                 </div>
-//                 <div class="container">
-//                     <section id="Search">
-//                         <div class="People">
-//                             <form id="prompt" action="" method="post">
-//                                 <input class="field" type="text" name="letter"><input type="submit" value="envoyer">
-//                             </form>
-//                         </div>
-//                         <div class="selection">
-//                             <audio controls src="{{.PreviewURL}}"></audio>
-//                         </div>
-//                     </section>
-//                 </div>
-//             </div>
-//         </body>
-//         </html>
-//     `)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	// Utilisation d'un moteur de template pour générer le HTML
+	tmpl, err := template.New("leaderboard").Parse(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Leaderboard</title>
+            <link rel="stylesheet" type="text/css" href="./static/BT.css" />
+        </head>
+        <body>
+            <div id="nexto">
+                <div class="container">
+                    <h1>Leaderboard</h1>
+                    <table>
+                        <tr>
+                            <th>User</th>
+                            <th>Score</th>
+                        </tr>
+                        {{range .}}
+                        <tr>
+                            <td>{{.User.Pseudo}}</td>
+                            <td>{{.Score}}</td>
+                        </tr>
+                        {{end}}
+                    </table>
+                </div>
+                
+            </div>
+        </body>
+        </html>
+    `)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	// Exécution du template avec les données du leaderboard
-// 	err = tmpl.Execute(w, leaderboard)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// }
+	// Exécution du template avec les données du leaderboard
+	err = tmpl.Execute(w, leaderboard)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func validatePassword(password string) (bool, string) {
+	// Longueur minimale
+	if len(password) < 8 {
+		return false, "Le mot de passe doit contenir au moins 8 caractères."
+	}
+
+	// Vérification de la présence de chiffres
+	hasDigit, _ := regexp.MatchString(`[0-9]`, password)
+	if !hasDigit {
+		return false, "Le mot de passe doit contenir au moins un chiffre."
+	}
+
+	// Vérification de la présence de lettres majuscules
+	hasUpperCase, _ := regexp.MatchString(`[A-Z]`, password)
+	if !hasUpperCase {
+		return false, "Le mot de passe doit contenir au moins une lettre majuscule."
+	}
+
+	// Vérification de la présence de lettres minuscules
+	hasLowerCase, _ := regexp.MatchString(`[a-z]`, password)
+	if !hasLowerCase {
+		return false, "Le mot de passe doit contenir au moins une lettre minuscule."
+	}
+
+	// Vérification de la présence de caractères spéciaux
+	hasSpecialChar, _ := regexp.MatchString(`[!@#$%^&*()_+{}|:"<>?~]`, password)
+	if !hasSpecialChar {
+		return false, "Le mot de passe doit contenir au moins un caractère spécial."
+	}
+
+	return true, "Le mot de passe satisfait toutes les recommandations de sécurité."
+}

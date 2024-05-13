@@ -16,6 +16,11 @@
                 <input type="text" name="email" placeholder="Email">
                 <input type="text" name="password" placeholder="Password">
                 <input type="text" name="confipassword" placeholder="Confirm Password">
+                <div class="error-message">
+                    {{if .Error}}
+                    <p>{{.Error}}</p>
+                    {{end}}
+                </div>
                 <div class="button">
                     <button type="submit">Sign Up</button>
                 </div>
