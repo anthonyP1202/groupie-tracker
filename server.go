@@ -532,12 +532,39 @@ func createCodeBlindTestHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	query := "SELECT id FROM USER WHERE pseudo = @pseudo"
+	var userID int
+	err = db.QueryRow(query, sql.Named("pseudo", cookie.Value)).Scan(&userID)
+	if err != nil {
+		fmt.Println("Erreur lors de l'exécution de la requête:", err)
+		return
+	}
+	fmt.Println("FINTEST")
+
 	// Récupérer l'ID de la dernière ligne insérée
-	id, err := result.LastInsertId()
+	idroom, err := result.LastInsertId()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(id)
+
+	fmt.Println(idroom)
+
+	result2, err := db.Exec("INSERT INTO ROOM_USERS (id_room, id_user, score) VALUES (?, ?, ?)", idroom, userID, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	idRoomUser, err := result2.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(idRoomUser)
+	cookieCode := http.Cookie{
+		Name:  "CodeRoom",
+		Value: code,
+	}
+	http.SetCookie(w, &cookieCode)
+
 	http.Redirect(w, r, "/BlindTestGame", http.StatusSeeOther)
 
 }
@@ -578,12 +605,38 @@ func createCodeGuessHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	query := "SELECT id FROM USER WHERE pseudo = @pseudo"
+	var userID int
+	err = db.QueryRow(query, sql.Named("pseudo", cookie.Value)).Scan(&userID)
+	if err != nil {
+		fmt.Println("Erreur lors de l'exécution de la requête:", err)
+		return
+	}
+	fmt.Println("FINTEST")
+
 	// Récupérer l'ID de la dernière ligne insérée
-	id, err := result.LastInsertId()
+	idroom, err := result.LastInsertId()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(id)
+
+	fmt.Println(idroom)
+
+	result2, err := db.Exec("INSERT INTO ROOM_USERS (id_room, id_user, score) VALUES (?, ?, ?)", idroom, userID, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	idRoomUser, err := result2.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(idRoomUser)
+	cookieCode := http.Cookie{
+		Name:  "CodeRoom",
+		Value: code,
+	}
+	http.SetCookie(w, &cookieCode)
 	http.Redirect(w, r, "/GuessongGame", http.StatusSeeOther)
 
 }
@@ -623,12 +676,38 @@ func createCodePTBHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	query := "SELECT id FROM USER WHERE pseudo = @pseudo"
+	var userID int
+	err = db.QueryRow(query, sql.Named("pseudo", cookie.Value)).Scan(&userID)
+	if err != nil {
+		fmt.Println("Erreur lors de l'exécution de la requête:", err)
+		return
+	}
+	fmt.Println("FINTEST")
+
 	// Récupérer l'ID de la dernière ligne insérée
-	id, err := result.LastInsertId()
+	idroom, err := result.LastInsertId()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(id)
+
+	fmt.Println(idroom)
+
+	result2, err := db.Exec("INSERT INTO ROOM_USERS (id_room, id_user, score) VALUES (?, ?, ?)", idroom, userID, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	idRoomUser, err := result2.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(idRoomUser)
+	cookieCode := http.Cookie{
+		Name:  "CodeRoom",
+		Value: code,
+	}
+	http.SetCookie(w, &cookieCode)
 	http.Redirect(w, r, "/PetitBacGame", http.StatusSeeOther)
 
 }
@@ -697,13 +776,21 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
+	cookie, err := r.Cookie("CodeRoom")
+	if err != nil {
+		log.Fatal(err)
+	}
+	roomName := cookie.Value
+	fmt.Println(roomName)
 	// Requête SQL pour récupérer les données du leaderboard
 	rows, err := db.Query(`
-        SELECT u.id, u.pseudo, ru.score
-        FROM ROOM_USERS ru
-        INNER JOIN USER u ON ru.id_user = u.id
-        ORDER BY ru.score DESC
-    `)
+	SELECT u.id, u.pseudo, ru.score
+	FROM ROOM_USERS ru
+	INNER JOIN USER u ON ru.id_user = u.id
+	INNER JOIN ROOMS r ON ru.id_room = r.id
+	WHERE r.name = ?
+	ORDER BY ru.score DESC
+    `, roomName)
 	if err != nil {
 		log.Fatal(err)
 	}
