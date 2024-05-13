@@ -166,6 +166,7 @@ func main() {
 	http.HandleFunc("/PetitBac", PetitBacHandler)
 
 	http.HandleFunc("/GuessongGame", func(w http.ResponseWriter, r *http.Request) {
+		leaderboardHandler(w, r)
 		Guessong(w, r, &music)
 	})
 	http.HandleFunc("/BlindTestGame", func(w http.ResponseWriter, r *http.Request) {
