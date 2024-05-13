@@ -127,3 +127,9 @@ footer h2 {
     border:none;
     font-size: 30px;
 }
+
+html,body  
+{  
+    height:100%;
+    overflow:hidden;
+}  
