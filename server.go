@@ -174,6 +174,7 @@ func main() {
 		BlindTest(w, r, &music)
 	})
 	http.HandleFunc("/PetitBacGame", func(w http.ResponseWriter, r *http.Request) {
+		leaderboardHandler(w, r)
 		PetitBac(w, r, &servBac)
 	})
 
