@@ -44,13 +44,6 @@ type track struct {
 	Title      string
 }
 
-// type Users struct {
-// 	Id       int
-// 	Pseudo   string
-// 	Email    string
-// 	Password string
-// }
-
 type answers struct {
 	Artiste    string
 	Album      string
@@ -59,23 +52,10 @@ type answers struct {
 	Featuring  string
 }
 
-// "unicode"
-
-/**
-************************************************* VARIABLES ***************************************************
-**/
-
 type Cookie struct {
 	Name  string
 	Value string
 }
-
-// type Users struct {
-// 	Id       int
-// 	Pseudo   string
-// 	Email    string
-// 	Password string
-// }
 
 var tpl *template.Template
 
@@ -84,6 +64,10 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
+
+/**
+************************************************* FIN  VARIABLES ***************************************************
+**/
 
 func main() {
 
@@ -131,7 +115,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//create a placeholder track structure
 	playlistTrack, err := client.GetPlaylistTracks(ctx, playlists.ID)
 	if err != nil {
 		log.Fatalln(err)
@@ -194,17 +177,16 @@ func main() {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("cacao")
-	// Supprimer le cookie d'authentification
+	// Supprimer le cookie
 	cookie := http.Cookie{
 		Name:    "pseudo",        // Nom du cookie à supprimer
 		Value:   "",              // Effacer la valeur du cookie
 		Expires: time.Unix(0, 0), // Rendre le cookie expiré
 		MaxAge:  -1,              // Fixer le temps de vie négatif pour rendre le cookie expiré
-		Path:    "/",             // Assurez-vous que le chemin correspond au cookie que vous souhaitez supprimer
+		Path:    "/",
 	}
 	http.SetCookie(w, &cookie)
 
-	// Rediriger l'utilisateur vers la page d'accueil ou toute autre page
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -253,7 +235,6 @@ func TempHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "temp.html", nil)
 }
 
-// loginAuthHandler authenticates user login
 func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loginAuthHandler running*****")
 
@@ -298,18 +279,15 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// registerAuthHandler creates new user in database
 func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****registerAuthHandler running*****")
 
-	// Open database connection
 	db, err := sql.Open("sqlite3", "bdd.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close() // Ensure the database connection is closed when function returns
+	defer db.Close()
 
-	// Parse form data
 	r.ParseForm()
 	username := r.FormValue("username")
 	email := r.FormValue("email")
@@ -317,7 +295,6 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	confipassword := r.FormValue("confipassword")
 	fmt.Println("pseudo =", username, ", email =", email, ", password =", password, ", confipassword =", confipassword)
 
-	// Check if passwords match
 	if password != confipassword {
 		errorMessage := "Les mots de passe ne correspondent pas"
 		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
@@ -349,7 +326,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate password
+	// Validate password CNIL
 	isValid, message := validatePassword(password)
 	if !isValid {
 		errorMessage := "Mot de passe non valide: " + message
@@ -373,7 +350,7 @@ func BlindTest(w http.ResponseWriter, r *http.Request, track *track) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close() // Ensure the database connection is closed when function returns
+	defer db.Close()
 	template, err := template.ParseFiles("page/BlindTestInGame.html")
 	if err != nil {
 		log.Fatal(err)
@@ -443,7 +420,7 @@ func Guessong(w http.ResponseWriter, r *http.Request, track *track) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close() // Ensure the database connection is closed when function returns
+	defer db.Close()
 	l := lyrics.New()
 	template, err := template.ParseFiles("page/GuessongInGame.html")
 	if err != nil {
@@ -512,27 +489,23 @@ func PetitBac(w http.ResponseWriter, r *http.Request, setting *PetitBacSettings)
 		log.Fatal(err)
 	}
 	nbCoorect := 0
-	defer db.Close() // Ensure the database connection is closed when function returns
+	defer db.Close()
 	done := 0
 	if r.FormValue("Album") == "on" {
 		nbCoorect += 1
-		//add score
+
 	}
 	if r.FormValue("Artiste") == "on" {
 		nbCoorect += 1
-		//add score
 	}
 	if r.FormValue("Groupe") == "on" {
 		nbCoorect += 1
-		//add score
 	}
 	if r.FormValue("Instrument") == "on" {
 		nbCoorect += 1
-		//add score
 	}
 	if r.FormValue("Featuring") == "on" {
 		nbCoorect += 1
-		//add score
 	}
 	fmt.Println("NB" + strconv.Itoa(nbCoorect))
 	stmt := `
@@ -613,7 +586,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	template.Execute(w, nil)
 }
 
-// à supprimer à la fin
 func Temp(w http.ResponseWriter, r *http.Request) {
 	template, err := template.ParseFiles("page/temp.html")
 	if err != nil {
@@ -623,17 +595,14 @@ func Temp(w http.ResponseWriter, r *http.Request) {
 }
 
 func createCodeBlindTestHandler(w http.ResponseWriter, r *http.Request) {
-	// Récupérer les données du formulaire
 	r.ParseForm()
 	code := r.Form.Get("code")
-
-	// Répondre au client
 
 	db, err := sql.Open("sqlite3", "bdd.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close() // Assurez-vous de fermer la connexion à la base de données une fois que vous avez terminé
+	defer db.Close()
 	cookie, err := r.Cookie("pseudo")
 	if err != nil {
 		log.Fatal(err)
@@ -647,12 +616,10 @@ func createCodeBlindTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if count > 0 {
 		fmt.Println("Le nom de la ROOMS existe déjà")
-		// Vous pouvez choisir de renvoyer un message d'erreur au client ou effectuer une redirection
 		http.Error(w, "Le nom de la ROOMS existe déjà", http.StatusBadRequest)
 		return
 	}
 
-	// Insérer les données dans la base de données
 	result, err := db.Exec("INSERT INTO ROOMS (created_by, max_player, name, id_game) VALUES (?, ?, ?, ?)", cookie.Value, 4, code, 1)
 	if err != nil {
 		log.Fatal(err)
@@ -696,17 +663,14 @@ func createCodeBlindTestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func createCodeGuessHandler(w http.ResponseWriter, r *http.Request) {
-	// Récupérer les données du formulaire
 	r.ParseForm()
 	code := r.Form.Get("code")
-
-	// Répondre au client
 
 	db, err := sql.Open("sqlite3", "bdd.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close() // Assurez-vous de fermer la connexion à la base de données une fois que vous avez terminé
+	defer db.Close()
 	cookie, err := r.Cookie("pseudo")
 	if err != nil {
 		log.Fatal(err)
@@ -720,7 +684,6 @@ func createCodeGuessHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if count > 0 {
 		fmt.Println("Le nom de la ROOMS existe déjà")
-		// Vous pouvez choisir de renvoyer un message d'erreur au client ou effectuer une redirection
 		http.Error(w, "Le nom de la ROOMS existe déjà", http.StatusBadRequest)
 		return
 	}
@@ -767,17 +730,14 @@ func createCodeGuessHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 func createCodePTBHandler(w http.ResponseWriter, r *http.Request) {
-	// Récupérer les données du formulaire
 	r.ParseForm()
 	code := r.Form.Get("code")
-
-	// Répondre au client
 
 	db, err := sql.Open("sqlite3", "bdd.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close() // Assurez-vous de fermer la connexion à la base de données une fois que vous avez terminé
+	defer db.Close()
 	cookie, err := r.Cookie("pseudo")
 	if err != nil {
 		log.Fatal(err)
@@ -875,27 +835,23 @@ type LeaderboardRow struct {
 	Score  int
 }
 
-// Structure pour représenter un utilisateur
 type User struct {
 	ID     int
 	Pseudo string
 	Email  string
 }
 
-// Structure pour représenter les points d'un utilisateur dans une salle
 type RoomUser struct {
 	UserID int
 	Score  int
 }
 
-// Structure pour représenter les données du leaderboard
 type LeaderboardEntry struct {
 	User  User
 	Score int
 }
 
 func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
-	// Connexion à la base de données
 	db, err := sql.Open("sqlite3", "bdd.db")
 	if err != nil {
 		log.Fatal(err)
