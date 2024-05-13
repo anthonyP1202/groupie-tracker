@@ -332,8 +332,8 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if count > 0 {
-		fmt.Println("Ce pseudo est déjà utilisé")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Ce pseudo est déjà utilisé")
+		errorMessage := ("Ce pseudo est déjà utilisé")
+		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
 		return
 	}
 
@@ -344,8 +344,8 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if count > 0 {
-		fmt.Println("Cet email est déjà utilisé")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Cet email est déjà utilisé")
+		errorMessage := ("Cet email est déjà utilisé")
+		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
 		return
 	}
 
