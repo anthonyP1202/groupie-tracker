@@ -169,6 +169,7 @@ func main() {
 		Guessong(w, r, &music)
 	})
 	http.HandleFunc("/BlindTestGame", func(w http.ResponseWriter, r *http.Request) {
+		leaderboardHandler(w, r)
 		BlindTest(w, r, &music)
 	})
 	http.HandleFunc("/PetitBacGame", func(w http.ResponseWriter, r *http.Request) {
@@ -224,7 +225,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****loginHandler running*****")
-	tpl.ExecuteTemplate(w, "Log.html", nil)
 	tpl.ExecuteTemplate(w, "Log.html", nil)
 }
 
@@ -749,18 +749,7 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
                         {{end}}
                     </table>
                 </div>
-                <div class="container">
-                    <section id="Search">
-                        <div class="People">
-                            <form id="prompt" action="" method="post">
-                                <input class="field" type="text" name="letter"><input type="submit" value="envoyer">
-                            </form>
-                        </div>
-                        <div class="selection">
-                            <audio controls src="{{.PreviewURL}}"></audio>
-                        </div>
-                    </section>
-                </div>
+                
             </div>
         </body>
         </html>
