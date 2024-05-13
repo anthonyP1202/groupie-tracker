@@ -15,7 +15,7 @@ Groupie-Tracker est une application web permettant aux utilisateurs de créer de
 
 ## Installation
 
-1. Clonez ce dépôt sur votre machine locale.
+1. Clonez ce dépôt sur votre machine locale en exécutant `git clone https://github.com/anthonyP1202/groupie-tracker.git`.
 2. Assurez-vous d'avoir Go installé sur votre machine. Sinon, vous pouvez le télécharger depuis [le site officiel de Go](https://golang.org/dl/).
 3. Installez les dépendances en exécutant `go mod tidy` si elle ne son pas déjà présentent.
 
