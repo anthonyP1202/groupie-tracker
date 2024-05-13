@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"math/rand"
+	"regexp"
 	"strings"
 
 	"database/sql"
@@ -318,9 +319,8 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if passwords match
 	if password != confipassword {
-		fmt.Println("Les mots de passe ne correspondent pas")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Les mots de passe ne correspondent pas")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Les mots de passe ne correspondent pas")
+		errorMessage := "Les mots de passe ne correspondent pas"
+		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
 		return
 	}
 
@@ -334,7 +334,6 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	if count > 0 {
 		fmt.Println("Ce pseudo est déjà utilisé")
 		tpl.ExecuteTemplate(w, "Sign-in.html", "Ce pseudo est déjà utilisé")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Ce pseudo est déjà utilisé")
 		return
 	}
 
@@ -347,7 +346,14 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	if count > 0 {
 		fmt.Println("Cet email est déjà utilisé")
 		tpl.ExecuteTemplate(w, "Sign-in.html", "Cet email est déjà utilisé")
-		tpl.ExecuteTemplate(w, "Sign-in.html", "Cet email est déjà utilisé")
+		return
+	}
+
+	// Validate password
+	isValid, message := validatePassword(password)
+	if !isValid {
+		errorMessage := "Mot de passe non valide: " + message
+		tpl.ExecuteTemplate(w, "Sign-in.html", map[string]interface{}{"Error": errorMessage})
 		return
 	}
 
@@ -852,4 +858,37 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func validatePassword(password string) (bool, string) {
+	// Longueur minimale
+	if len(password) < 8 {
+		return false, "Le mot de passe doit contenir au moins 8 caractères."
+	}
+
+	// Vérification de la présence de chiffres
+	hasDigit, _ := regexp.MatchString(`[0-9]`, password)
+	if !hasDigit {
+		return false, "Le mot de passe doit contenir au moins un chiffre."
+	}
+
+	// Vérification de la présence de lettres majuscules
+	hasUpperCase, _ := regexp.MatchString(`[A-Z]`, password)
+	if !hasUpperCase {
+		return false, "Le mot de passe doit contenir au moins une lettre majuscule."
+	}
+
+	// Vérification de la présence de lettres minuscules
+	hasLowerCase, _ := regexp.MatchString(`[a-z]`, password)
+	if !hasLowerCase {
+		return false, "Le mot de passe doit contenir au moins une lettre minuscule."
+	}
+
+	// Vérification de la présence de caractères spéciaux
+	hasSpecialChar, _ := regexp.MatchString(`[!@#$%^&*()_+{}|:"<>?~]`, password)
+	if !hasSpecialChar {
+		return false, "Le mot de passe doit contenir au moins un caractère spécial."
+	}
+
+	return true, "Le mot de passe satisfait toutes les recommandations de sécurité."
 }
